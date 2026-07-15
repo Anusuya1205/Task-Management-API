@@ -22,10 +22,36 @@ namespace Task_Management_API.Controllers
 
         // [Authorize]
         [HttpGet]
-        [Route("api/GetTasks/{id}")]
-        public async Task<IActionResult> GetTasks(string id)
+        [Route("api/GetTasks/{status}")]
+        public async Task<IActionResult> GetTasks(string status, int pgNum = 1, int pgSize = 5)
         {
-            List<MOD_Task> lstData = await _blTask.GetTasks(id);
+            List<MOD_Task> lstData = await _blTask.GetTasks(status, pgNum, pgSize);
+            if (lstData != null)
+            {
+                Resp_Task clsRes = new Resp_Task();
+                clsRes.Status = "True";
+                clsRes.Status_Code = StatusCodes.Status200OK;
+                clsRes.Message = "Data Retrived Succesfully";
+                clsRes.Data = lstData;
+                return Ok(clsRes);
+            }
+            else
+            {
+
+                Resp_Task clsResp = new Resp_Task();
+                clsResp.Status_Code = StatusCodes.Status202Accepted;
+                clsResp.Message = "no Records";
+                clsResp.Status = "False";
+                return Ok(clsResp);
+            }
+        }
+
+
+        [HttpGet]
+        [Route("api/GetTasksById/{id}")]
+        public async Task<IActionResult> GetTasksByID(string id)
+        {
+            List<MOD_Task> lstData = await _blTask.GetTasksByID(id);
             if (lstData != null)
             {
                 Resp_Task clsRes = new Resp_Task();

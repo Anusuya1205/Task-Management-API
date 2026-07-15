@@ -16,20 +16,51 @@ namespace Task_Management_API.BL
         }
 
 
-        // if the id is not null it will go the condition otherwise it will show all the record
-        public async Task<List<MOD_Task>> GetTasks(string id)
+        public async Task<List<MOD_Task>> GetTasks(string status, int pgNum, int pgSize)
         {
             string SQL;
 
             SQL = @" select * from tasks  where 1=1 ";
 
-            if (id != "null")
+            if (status != "null")
             {
-                SQL = SQL + " and id = '{0}' ";
-                SQL = string.Format(SQL, id);
+                SQL = SQL + " and status = '{0}' ";
+                SQL = string.Format(SQL, status);
             }
-            SQL = SQL + " order by due_date ";
-            SQL = string.Format(SQL);
+            SQL = SQL + " order by due_date offset '{0}' LIMIT '{1}' ";
+            SQL = string.Format(SQL, pgNum, pgSize);
+
+            DataSet ds = await _blClass.FetchDataAsync(SQL);
+            DataTable dt = ds.Tables[0];
+
+            List<MOD_Task> clsTask = new List<MOD_Task>();
+            foreach (DataRow dr in dt.Rows)
+            {
+                clsTask.Add(new MOD_Task
+                {
+                    id = Convert.ToInt32(dr["id"]),
+                    title = dr["title"]?.ToString(),
+                    description = dr["description"]?.ToString(),
+                    status = dr["status"].ToString(),
+                    due_date = Convert.ToDateTime(dr["due_date"]),
+                    created_dt = Convert.ToDateTime(dr["created_dt"]),
+                    updated_dt = dr["updated_dt"] == DBNull.Value
+                    ? null
+                    : Convert.ToDateTime(dr["updated_dt"])
+
+                });
+
+            }
+            return clsTask;
+        }
+
+
+        public async Task<List<MOD_Task>> GetTasksByID(string id)
+        {
+            string SQL;
+
+            SQL = @" select * from tasks  where id = '{0}' ";
+            SQL = string.Format(SQL, id);
 
             DataSet ds = await _blClass.FetchDataAsync(SQL);
             DataTable dt = ds.Tables[0];

@@ -12,6 +12,10 @@
 		<PackageReference Include="System.Data.Odbc" Version="9.0.15" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="NewFolder2\" />
+	</ItemGroup>
+
 	
 
 </Project>
